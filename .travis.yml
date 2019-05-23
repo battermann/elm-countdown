@@ -1,0 +1,10 @@
+language: elm
+
+script:
+  - mv ./build/index.html ./build/200.html
+
+deploy:
+  provider: surge
+  project: ./build/
+  domain: elm-countdown.surge.sh
+  skip_cleanup: true
