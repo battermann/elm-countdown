@@ -457,7 +457,11 @@ viewInput model =
             , Form.col []
                 [ Form.group []
                     [ Form.label [ Html.Attributes.for "eventhour" ] [ Html.text model.form.hour.name ]
-                    , Select.custom [ Select.id "eventhour", Select.onChange HourInput ]
+                    , Select.custom
+                        [ Select.id "eventhour"
+                        , Select.onChange HourInput
+                        , Select.attrs [ Html.Attributes.style "min-width" "75px" ]
+                        ]
                         (List.range
                             0
                             23
@@ -469,7 +473,11 @@ viewInput model =
             , Form.col []
                 [ Form.group []
                     [ Form.label [ Html.Attributes.for "eventminute" ] [ Html.text model.form.minute.name ]
-                    , Select.custom [ Select.id "eventminute", Select.onChange MinuteInput ]
+                    , Select.custom
+                        [ Select.id "eventminute"
+                        , Select.onChange MinuteInput
+                        , Select.attrs [ Html.Attributes.style "min-width" "75px" ]
+                        ]
                         (List.range
                             0
                             59
@@ -481,7 +489,11 @@ viewInput model =
             , Form.col []
                 [ Form.group []
                     [ Form.label [ Html.Attributes.for "eventtimezone" ] [ Html.text model.form.timeZone.name ]
-                    , Select.custom [ Select.id "eventtimezone", Select.onChange ZoneInput ]
+                    , Select.custom
+                        [ Select.id "eventtimezone"
+                        , Select.onChange ZoneInput
+                        , Select.attrs [ Html.Attributes.style "min-width" "80px" ]
+                        ]
                         (TimeZone.zones
                             |> Dict.keys
                             |> List.map
