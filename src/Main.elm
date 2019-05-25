@@ -571,11 +571,14 @@ viewEvent deleteLink event currentTime =
 viewCountdowns : Model -> Html Msg
 viewCountdowns model =
     let
-        cardList =
+        sortedEvents =
             model.events
                 |> List.sortBy (\event -> Time.Extra.partsToPosix (Tuple.second event.timeZone) event.localDateTime |> Time.posixToMillis)
+
+        cardList =
+            sortedEvents
                 |> List.indexedMap Tuple.pair
-                |> List.filterMap (\( index, event ) -> model.currentTime |> Maybe.map (viewEvent (deleteUrl index model.events) event))
+                |> List.filterMap (\( index, event ) -> model.currentTime |> Maybe.map (viewEvent (deleteUrl index sortedEvents) event))
 
         input =
             Card.config [ Card.attrs [ Spacing.mb3 ] ]
