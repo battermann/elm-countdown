@@ -196,7 +196,7 @@ init url key =
       , form = initialForm
       , zone = Nothing
       }
-    , Cmd.batch [ Task.perform Tick Time.now, Task.attempt Here TimeZone.getZone ]
+    , Cmd.batch [ Task.perform Now Time.now, Task.attempt Here TimeZone.getZone ]
     )
 
 
@@ -289,8 +289,8 @@ deleteUrl index =
 
 
 type Msg
-    = NoOp
-    | Tick Posix
+    = Tick Posix
+    | Now Posix
     | Here (Result TimeZone.Error ( String, Zone ))
     | ChangedUrl Url
     | ClickedLink UrlRequest
@@ -348,17 +348,47 @@ diff now event =
     { days = days, hours = hours, minutes = minutes, seconds = seconds }
 
 
+trySetDate : Maybe Posix -> Maybe Zone -> EventForm -> EventForm
+trySetDate maybePosix maybeZone form =
+    Maybe.map2 Time.Extra.posixToParts maybeZone maybePosix
+        |> Maybe.map
+            (\d ->
+                form
+                    |> setDate
+                        ([ String.fromInt d.year
+                         , String.padLeft 2 '0' (String.fromInt (Date.monthToNumber d.month))
+                         , String.padLeft 2 '0' (String.fromInt (d.day + 1))
+                         ]
+                            |> String.join "-"
+                        )
+            )
+        |> Maybe.withDefault form
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        NoOp ->
-            ( model, Cmd.none )
+        Now time ->
+            ( { model
+                | currentTime = Just time
+                , form = model.form |> trySetDate (Just time) (model.zone |> Maybe.map Tuple.second)
+              }
+            , Cmd.none
+            )
 
         Tick time ->
             ( { model | currentTime = Just time }, Cmd.none )
 
         Here (Ok zone) ->
-            ( { model | zone = Just zone, form = model.form |> setZone (Tuple.first zone) }, Cmd.none )
+            ( { model
+                | zone = Just zone
+                , form =
+                    model.form
+                        |> setZone (Tuple.first zone)
+                        |> trySetDate model.currentTime (Just (Tuple.second zone))
+              }
+            , Cmd.none
+            )
 
         Here (Err _) ->
             ( { model | zone = Nothing }, Cmd.none )
