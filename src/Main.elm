@@ -82,7 +82,7 @@ apply result fResult =
 
 initialForm : EventForm
 initialForm =
-    { name = { name = "Event Name", value = "", validated = Err [ "Name must not be empty." ] }
+    { name = { name = "Event Name", value = "", validated = Ok "" }
     , localDate = { name = "Date", value = "", validated = Err [ "Invalid date." ] }
     , hour = { name = "Hour", value = "00", validated = Ok 0 }
     , minute = { name = "Minute", value = "00", validated = Ok 0 }
@@ -92,15 +92,7 @@ initialForm =
 
 setName : String -> EventForm -> EventForm
 setName name form =
-    let
-        f value =
-            if value |> String.isEmpty |> not then
-                Ok value
-
-            else
-                Err [ "Name must not be empty." ]
-    in
-    { form | name = form.name |> setValue f name }
+    { form | name = form.name |> setValue Ok name }
 
 
 filterMaybe : (a -> Bool) -> Maybe a -> Maybe a
@@ -524,6 +516,24 @@ viewCountdown name value =
         ]
 
 
+viewDateTime : Event -> Html Msg
+viewDateTime event =
+    let
+        date =
+            Date.fromCalendarDate event.localDateTime.year event.localDateTime.month event.localDateTime.day
+                |> Date.format "EEEE, d MMMM y"
+
+        time =
+            [ event.localDateTime.hour, event.localDateTime.minute ]
+                |> List.map (String.fromInt >> String.padLeft 2 '0')
+                |> String.join ":"
+
+        zone =
+            Tuple.first event.timeZone |> String.replace "_" " "
+    in
+    (date ++ ", " ++ time ++ " (" ++ zone ++ ")") |> Html.text
+
+
 viewEvent : String -> Event -> Posix -> Card.Config Msg
 viewEvent deleteLink event currentTime =
     let
@@ -538,7 +548,10 @@ viewEvent deleteLink event currentTime =
                 [ Html.text ":" ]
     in
     Card.config [ Card.attrs [ Spacing.mb3 ] ]
-        |> Card.headerH3 [] [ Html.text event.name ]
+        |> Card.header []
+            [ Html.h3 [] [ Html.text event.name ]
+            , viewDateTime event
+            ]
         |> Card.block []
             [ Block.text []
                 [ Html.div [ Flex.block, Flex.row, Flex.justifyCenter ]
