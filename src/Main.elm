@@ -500,7 +500,10 @@ viewInput model =
                     ]
                 ]
             ]
-        , Button.button [ Button.primary, Button.disabled (not (model.form |> isValid)) ] [ Html.text "Submit" ]
+        , Button.button [ Button.primary, Button.disabled (not (model.form |> isValid)) ]
+            [ Html.i [ Html.Attributes.class "fas fa-plus" ] []
+            , Html.text " Create"
+            ]
         ]
 
 
@@ -565,7 +568,13 @@ viewEvent deleteLink event currentTime =
                     ]
                 ]
             ]
-        |> Card.footer [] [ Button.linkButton [ Button.danger, Button.attrs [ Html.Attributes.href deleteLink ] ] [ Html.text "Delete" ] ]
+        |> Card.footer []
+            [ Button.linkButton
+                [ Button.danger
+                , Button.attrs [ Html.Attributes.href deleteLink ]
+                ]
+                [ Html.i [ Html.Attributes.class "fas fa-trash-alt" ] [], Html.text " Delete" ]
+            ]
 
 
 viewCountdowns : Model -> Html Msg
@@ -598,6 +607,11 @@ view model =
                 [ Grid.col []
                     [ Html.h1 [ Spacing.mb5 ] [ Html.text "Elm Countdown" ]
                     , viewCountdowns model
+                    , Html.div [ Flex.block, Flex.justifyAround, Flex.row ]
+                        [ Button.linkButton
+                            [ Button.roleLink, Button.attrs [ Html.Attributes.href "https://github.com/battermann/elm-countdown" ] ]
+                            [ Html.i [ Html.Attributes.class "fab fa-github" ] [], Html.text " Source Code" ]
+                        ]
                     ]
                 ]
             ]
